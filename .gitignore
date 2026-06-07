@@ -1,0 +1,18 @@
+# Dependencias
+node_modules/
+
+# Archivos recibidos en runtime (datos del usuario, no del proyecto)
+Recibidos/
+
+# Empaquetados / artefactos
+File-transfer.zip
+*.zip
+
+# Logs y temporales
+*.log
+.localdrop-tmp/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini

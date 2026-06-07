@@ -1,0 +1,16 @@
+{
+  "name": "localdrop",
+  "version": "1.0.0",
+  "description": "Transferencia de archivos en red local con estetica Kaisse",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "multer": "^1.4.5-lts.1",
+    "cors": "^2.8.5",
+    "archiver": "^7.0.0",
+    "unzipper": "^0.12.0"
+  }
+}

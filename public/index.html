@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LocalDrop - Transferencia rápida de archivos en red local con estética Kaisse">
+  <title>Kaisse | LocalDrop</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- CSS Principal -->
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="style.css">
+  <!-- JSZip CDN -->
+  <script src="https://unpkg.com/jszip@3/dist/jszip.min.js"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+
+  <!-- Cabecera / Header -->
+  <header class="header">
+    <div class="header__logo">
+      <img class="logo-img" src="favicon.png" alt="Kaisse">
+      <div class="logo-text-wrapper">
+        <span class="logo-brand">Kaisse</span>
+        <span class="logo-app">LocalDrop</span>
+      </div>
+    </div>
+    <div class="header__status" id="self-status">
+      <i data-lucide="wifi"></i>
+      <span id="self-hostname">Buscando...</span>
+      <span class="status-dot"></span>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal -->
+  <main class="main-container">
+    
+    <!-- Sección Dispositivos -->
+    <section class="section">
+      <div class="card">
+        <h2 class="card__title">
+          <i data-lucide="monitor-smartphone"></i> Dispositivos en la red
+        </h2>
+        <div class="peer-list" id="peers-container">
+          <!-- Peers dinámicos -->
+          <div class="empty-state">
+            <i class="empty-state__icon" data-lucide="loader" class="loading-spinner"></i>
+            <p>Buscando otros dispositivos en la red local...</p>
+          </div>
+        </div>
+
+        <!-- Sección de Dispositivos Guardados -->
+        <div id="saved-peers-section" class="hidden" style="margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.05);">
+          <h3 class="card__title" style="margin-bottom: 12px;">
+            <i data-lucide="bookmark"></i> Agregados Anteriormente
+          </h3>
+          <div class="peer-list" id="saved-peers-container">
+            <!-- Peers guardados -->
+          </div>
+        </div>
+
+        <button class="btn-secondary add-peer-btn" id="open-add-peer-btn">
+          <i data-lucide="plus"></i> Agregar IP manualmente
+        </button>
+      </div>
+    </section>
+
+    <!-- Sección Enviar -->
+    <section class="section">
+      <div class="card">
+        <h2 class="card__title">
+          <i data-lucide="upload-cloud"></i> Enviar a dispositivo seleccionado
+        </h2>
+        
+        <div class="drop-zone" id="drop-zone">
+          <div class="drop-zone__content">
+            <i class="drop-zone__icon" data-lucide="upload-cloud"></i>
+            <p class="drop-zone__text">Arrastrá tus archivos o carpetas acá</p>
+            <p class="drop-zone__hint">O hacé click para seleccionar del explorador</p>
+          </div>
+          <!-- Inputs ocultos para archivos y carpetas -->
+          <input type="file" id="file-input" class="hidden" multiple>
+          <input type="file" id="folder-input" class="hidden" webkitdirectory directory multiple>
+        </div>
+
+        <!-- Lista de transferencias activas/completadas -->
+        <div class="transfer-list-container hidden" id="transfer-list-container">
+          <h3 class="transfer-list-title">Transferencias</h3>
+          <div class="transfer-list" id="transfer-list">
+            <!-- Items dinámicos -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección Entrantes (lo que está llegando a este equipo) -->
+    <section class="section hidden" id="incoming-section">
+      <div class="card">
+        <h2 class="card__title">
+          <i data-lucide="download-cloud"></i> Recibiendo ahora
+        </h2>
+        <div class="transfer-list" id="incoming-list">
+          <!-- Items dinámicos -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección Recibidos -->
+    <section class="section">
+      <div class="card">
+        <h2 class="card__title">
+          <i data-lucide="hard-drive"></i> Archivos Recibidos
+        </h2>
+        <div class="file-list" id="files-container">
+          <!-- Archivos dinámicos -->
+          <div class="empty-state">
+            <i class="empty-state__icon" data-lucide="hard-drive"></i>
+            <p>No se recibieron archivos todavía.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal Agregar IP Manual -->
+  <div class="modal-overlay hidden" id="add-peer-modal">
+    <div class="modal">
+      <h3 class="modal__title">Agregar IP Manualmente</h3>
+      <p class="modal__desc">Ingresá la IP del dispositivo remoto. Intentaremos conectarnos.</p>
+      
+      <div class="modal__form-group">
+        <label for="peer-ip-input" class="modal__label">Dirección IP</label>
+        <input type="text" id="peer-ip-input" class="input-field" placeholder="Ej: 192.168.1.50" autocomplete="off">
+      </div>
+
+      <div class="modal__form-group">
+        <label for="peer-port-input" class="modal__label">Puerto</label>
+        <input type="text" id="peer-port-input" class="input-field" placeholder="Por defecto: 7749" value="7749">
+      </div>
+
+      <div class="modal__actions">
+        <button class="btn-secondary" id="close-add-peer-btn">Cancelar</button>
+        <button class="btn-primary" id="save-peer-btn">Conectar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenedor Toast para Notificaciones -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- JS Principal -->
+  <script src="app.js"></script>
+</body>
+</html>
